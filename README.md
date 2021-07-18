@@ -1,3 +1,11 @@
+## main branch
+操作してみる
+
+## rest-api branch
+REST API 作ってみる
+
+## graphql-api branch
+GraphQL API 作ってみる
 # A Practical Introduction to Prisma
 
 This repository contains the starter project for the **A Practical Introduction to Prisma** workshop by [Nikolas Burk](https://twitter.com/nikolasburk).
