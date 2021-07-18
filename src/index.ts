@@ -1,124 +1,96 @@
 import { PrismaClient } from '@prisma/client';
-import express from 'express';
 
 const prisma = new PrismaClient();
-const app = express();
 
-app.use(express.json());
+// A `main` function so that you can use async/await
+const main = async () => {
+	// ... you will write your Prisma Client queries here
 
-app.get('/users', async (req, res) => {
-	const result = await prisma.user.findMany();
-	res.json(result);
-});
+	//
+	// GET
 
-app.post(`/signup`, async (req, res) => {
-	const { name, email } = req.body;
-	const result = await prisma.user.create({
-		data: {
-			name,
-			email,
-		},
+	// const res = await prisma.user.findMany();
+	// const res = await prisma.user.findUnique({
+	//   where: {
+	//     id: 2
+	//   }
+	// })
+
+	// const res = await prisma.user.findMany({
+	//   select: {
+	//     id: true,
+	//     name: true
+	//   }
+	// })
+
+	// const res = await prisma.post.findMany({
+	//   where: {
+	//     author: {
+	//       id: 5
+	//     }
+	//   }
+	// })
+
+	//
+	// CREATE
+
+	// const res = await prisma.user.create({
+	//   data: {
+	//     email: "tete@tete.com",
+	//     name: "tete"
+	//   }
+	// })
+
+	// const res = await prisma.user.create({
+	//   data: {
+	//     name: "NIKE",
+	//     email: "nike@nike.com",
+	//     posts: {
+	//       create: {
+	//         title: "ABOUT NIKE"
+	//       }
+	//     }
+	//   }
+	// })
+
+	// const res = await prisma.post.create({
+	//   data: {
+	//     title: "ハローワールそ"
+	//   }
+	// })
+
+	//
+	// UPDATE
+
+	// const res = await prisma.user.update({
+	//   where: {
+	//     id: 4
+	//   },
+	//   data: {
+	//     name: "Tarou"
+	//   }
+	// });
+
+	// const res = await prisma.post.update({
+	//   where: {
+	//     id: 1
+	//   },
+	//   data: {
+	//     author: {
+	//       connect: {
+	//         email: "tete@tete.com"
+	//       }
+	//     }
+	//   }
+	// })
+
+	// console.log(res);
+};
+
+main()
+	.catch((e) => {
+		console.error(e);
+	})
+	.finally(async () => {
+		await prisma.$disconnect();
 	});
-	res.json(result);
-});
-
-app.post(`/post`, async (req, res) => {
-	const { title, content, authorEmail } = req.body;
-	const result = await prisma.post.create({
-		data: {
-			title,
-			content,
-			author: {
-				connect: {
-					email: authorEmail,
-				},
-			},
-		},
-	});
-	res.json(result);
-});
-
-app.put('/post/:id/views', async (req, res) => {
-	const { id } = req.params;
-	const result = await prisma.post.update({
-		where: {
-			id: Number(id),
-		},
-		data: {
-			viewCount: {
-				increment: 1,
-			},
-		},
-	});
-	res.json(result);
-});
-
-app.put('/publish/:id', async (req, res) => {
-	const { id } = req.params;
-	const result = await prisma.post.update({
-		where: {
-			id: Number(id),
-		},
-		data: {
-			published: true,
-		},
-	});
-	res.json(result);
-});
-
-// prisma fluent api
-// https://www.prisma.io/docs/concepts/components/prisma-client/relation-queries#fluent-api
-app.get('/user/:id/drafts', async (req, res) => {
-	const { id } = req.params;
-	const result = await prisma.user
-		.findUnique({
-			where: {
-				id: Number(id),
-			},
-		})
-		.posts({
-			where: {
-				published: false,
-			},
-		});
-	res.json(result);
-});
-
-app.get(`/post/:id`, async (req, res) => {
-	const { id } = req.params;
-	const result = await prisma.post.findUnique({
-		where: {
-			id: Number(id),
-		},
-	});
-	res.json(result);
-});
-
-// skip, take
-// https://www.prisma.io/docs/concepts/components/prisma-client/pagination
-// searchString
-//
-app.get('/feed', async (req, res) => {
-	const { searchString, skip, take } = req.query;
-	console.log(searchString, skip, take);
-
-	const or = searchString
-		? {
-				OR: [
-					{ title: { contains: searchString as string } },
-					{ content: { contains: searchString as string } },
-				],
-		  }
-		: {};
-
-	const result = await prisma.post.findMany({
-		where: {
-			published: true,
-			...or,
-		},
-	});
-
-	res.json(result);
-});
-
-app.listen(3000, () => console.log(`🚀 Server ready at: http://localhost:3000`));
