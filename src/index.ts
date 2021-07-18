@@ -1,6 +1,6 @@
-import { ApolloServer } from "apollo-server";
-import { DateTimeResolver } from "graphql-scalars";
-import { Context, context } from "./context";
+import { ApolloServer } from 'apollo-server';
+import { DateTimeResolver } from 'graphql-scalars';
+import { Context, context } from './context';
 
 const typeDefs = `
 type Query {
@@ -39,68 +39,79 @@ scalar DateTime
 `;
 
 const resolvers = {
-  Query: {
-    allUsers: (_parent, _args, context: Context) => {
-      // TODO
-    },
-    postById: (_parent, args: { id: number }, context: Context) => {
-      // TODO
-    },
-    feed: (
-      _parent,
-      args: {
-        searchString: string | undefined;
-        skip: number | undefined;
-        take: number | undefined;
-      },
-      context: Context
-    ) => {
-      // TODO
-    },
-    draftsByUser: (_parent, args: { id: number }, context: Context) => {
-      // TODO
-    },
-  },
-  Mutation: {
-    signupUser: (
-      _parent,
-      args: { name: string | undefined; email: string },
-      context: Context
-    ) => {
-      // TODO
-    },
-    createDraft: (
-      _parent,
-      args: { title: string; content: string | undefined; authorEmail: string },
-      context: Context
-    ) => {
-      // TODO
-    },
-    incrementPostViewCount: (
-      _parent,
-      args: { id: number },
-      context: Context
-    ) => {
-      // TODO
-    },
-    deletePost: (_parent, args: { id: number }, context: Context) => {
-      // TODO
-    },
-  },
-  Post: {
-    author: (parent, _args, context: Context) => {
-      return null;
-    },
-  },
-  User: {
-    posts: (parent, _args, context: Context) => {
-      return [];
-    },
-  },
-  DateTime: DateTimeResolver,
+	Query: {
+		allUsers: (_parent, _args, context: Context) => {
+			// TODO
+			return context.prisma.user.findMany();
+		},
+		postById: (_parent, args: { id: number }, context: Context) => {
+			// TODO
+      return context.prisma.post.findUnique({
+        where: {
+          id: args.id
+        }
+      })
+		},
+		feed: (
+			_parent,
+			args: {
+				searchString: string | undefined;
+				skip: number | undefined;
+				take: number | undefined;
+			},
+			context: Context,
+		) => {
+			// TODO
+		},
+		draftsByUser: (_parent, args: { id: number }, context: Context) => {
+			// TODO
+		},
+	},
+	Mutation: {
+		signupUser: (_parent, args: { name: string | undefined; email: string }, context: Context) => {
+			// TODO
+      return context.prisma.user.create({
+        data: {
+          name: args.name,
+          email: args.email
+        }
+      })
+		},
+		createDraft: (
+			_parent,
+			args: { title: string; content: string | undefined; authorEmail: string },
+			context: Context,
+		) => {
+			// TODO
+		},
+		incrementPostViewCount: (_parent, args: { id: number }, context: Context) => {
+			// TODO
+		},
+		deletePost: (_parent, args: { id: number }, context: Context) => {
+			// TODO
+      return context.prisma.post.delete({
+        where: {
+          id: args.id
+        }
+      })
+		},
+	},
+	Post: {
+		author: (parent, _args, context: Context) => {
+      return context.prisma.post.findUnique({
+        where: {id: parent.id}
+      }).author();
+		},
+	},
+	// User: {
+	// 	posts: (parent, _args, context: Context) => {
+  //     return context.prisma.user.findUnique({
+  //       where: {id: parent.id}
+  //     }).posts()
+	// 	},
+	// },
+	DateTime: DateTimeResolver,
 };
 
 const server = new ApolloServer({ typeDefs, resolvers, context });
-server.listen({ port: 4000 }, () =>
-  console.log(`🚀 Server ready at: http://localhost:4000`)
-);
+server.listen({ port: 4000 }, () => console.log(`🚀 Server ready at: http://localhost:4000`));
